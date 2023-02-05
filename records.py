@@ -2,8 +2,8 @@ import os
 import sqlite3
 
 _DATABASE_FILE = "records.db"
-_db_file_exists = os.path.isfile(_DATABASE_FILE)
 
+_db_file_exists = os.path.isfile(_DATABASE_FILE)
 _connection = sqlite3.connect(_DATABASE_FILE)
 _cursor = _connection.cursor()
 
@@ -13,21 +13,22 @@ if not _db_file_exists:
     _cursor.execute(
         "CREATE TABLE teams ( id INTEGER PRIMARY KEY AUTOINCREMENT, name, role_id, channel_category_id, channel_text_id, channel_voice_id )")
 
-
 class Participant:
+    """Represents a participant record."""
+    
     def __init__(self, record):
         self._id, self._email, self._discord_tag, self._discord_id, self._team_id = record
 
-    def get_by_id(id):
-        """Retrieves the participant with a matching ID
+    def get_by_record_id(record_id):
+        """Retrieves the participant with a matching record ID
 
         Parameters:
-            id: ID address to match
+            record_id: record ID to match
 
         Returns:
-            a Participant associated with the record with the matching ID
+            a Participant associated with matching record ID
         """
-        return _cursor.execute("SELECT * FROM participants WHERE id=:id", {"id": id}).fetchone()
+        return _cursor.execute("SELECT * FROM participants WHERE id=:id", {"id": record_id}).fetchone()
 
     def get_by_discord_id(discord_id):
         """Retrieves the participant with a matching discord ID
@@ -40,7 +41,7 @@ class Participant:
             ID, or None if no such record exists
         """
         retrieved_record = _cursor.execute(
-            "SELECT * FROM participants WHERE discord_id=:discord_id", {"discord_id": discord_id}).fetchone()
+            "SELECT * FROM participants WHERE discord_id=:id", {"id": discord_id}).fetchone()
         return None if retrieved_record is None else Participant(retrieved_record)
 
     def get_by_email(email):
