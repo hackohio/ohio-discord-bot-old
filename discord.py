@@ -1,5 +1,5 @@
 import nextcord
-from nextcord.ext import commands
+from nextcord.ext import commands, application_checks
 import records
 import util
 
@@ -52,6 +52,35 @@ async def verify(
 
     await interaction.followup.send(ephemeral=True,
                                     content=f"You have been successfully verified. You now have access to the Discord server. Head over to the { _bot.get_channel(int(util.config['discord']['start_here_channel_id'])).mention } channel for instructions on next steps.")
+
+
+@_bot.slash_command(description="Manually verify a participant")
+@application_checks.has_role(int(util.config['discord']['organizer_role_id']))
+async def manualverify(
+        interaction: nextcord.Interaction,
+        member: nextcord.Member = nextcord.SlashOption(
+            description="The member to manually verify as a participant",
+            required=True
+        ),
+        email: str = nextcord.SlashOption(
+            description="The email address associated with the participant",
+            required=True
+        )):
+
+    await interaction.response.defer(ephemeral=True)
+
+    tag = f'{member.name}#{member.discriminator}'
+    record = records.Participant.get_by_discord_tag(tag)
+
+    if record is None:
+        record = records.Participant.insert_record(email, tag)
+    else:
+        record.email = email
+
+    record.discord_id = member.id
+
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'`{tag}` has been manually verified as a Participant with email `{email}`')
 
 
 def start():

@@ -15,7 +15,7 @@ if not _db_file_exists:
 
 class Participant:
     """Represents a participant record."""
-    
+
     def __init__(self, record):
         self._id, self._email, self._discord_tag, self._discord_id, self._team_id = record
 
@@ -56,6 +56,20 @@ class Participant:
         """
         retrieved_record = _cursor.execute(
             "SELECT * FROM participants WHERE email=:email", {"email": email}).fetchone()
+        return None if retrieved_record is None else Participant(retrieved_record)
+
+    def get_by_discord_tag(discord_tag):
+        """Retrieves the participant with a matching Discord tag 
+
+        Parameters:
+            discord_tag: Discord tag to match
+
+        Returns:
+            a Participant associated with the record with the matching Discord
+            tag, or None if no such record exists
+        """
+        retrieved_record = _cursor.execute(
+            "SELECT * FROM participants WHERE discord_tag=:discord_tag", {"discord_tag": discord_tag}).fetchone()
         return None if retrieved_record is None else Participant(retrieved_record)
 
     def insert_record(email, discord_tag):
