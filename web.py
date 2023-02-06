@@ -19,5 +19,31 @@ def push_participant():
     else:
         abort(403)
 
+@_app.post('/push/mentor')
+def push_mentor():
+    if request.headers.get('api-key') == config.web_api_key:
+        data = request.get_json()
+        try:
+            records.add_mentor_response_entry(data['email'], data['discord_tag'])
+            return jsonify({'data': data['email'], 'discord_tag': data['discord_tag']})
+        except:
+            abort(400)
+            
+    else:
+        abort(403)
+
+@_app.post('/push/juddge')
+def push_judge():
+    if request.headers.get('api-key') == config.web_api_key:
+        data = request.get_json()
+        try:
+            records.add_judge_response_entry(data['email'], data['discord_tag'])
+            return jsonify({'data': data['email'], 'discord_tag': data['discord_tag']})
+        except:
+            abort(400)
+            
+    else:
+        abort(403)
+
 def start():
     wsgi.server(eventlet.listen(('0.0.0.0', config.web_port)), _app)
