@@ -17,6 +17,8 @@ _REQUIRED_CONFIG_ENTRIES = [
     ('discord', 'all_access_pass_role_id'),
     ('contact', 'registration_link'),
     ('contact', 'organizer_email'),
+    ('web', 'port'),
+    ('web', 'api_key'),
 ]
 
 _config = configparser.ConfigParser()
@@ -46,3 +48,5 @@ discord_team_assigned_role_id = int(_config['discord']['team_assigned_role_id'])
 discord_all_access_pass_role_id = int(_config['discord']['all_access_pass_role_id'])
 contact_registration_link = _config['contact']['registration_link']
 contact_organizer_email = _config['contact']['organizer_email']
+web_port = int(_config['web']['port'])
+web_api_key = _config['web']['api_key']
