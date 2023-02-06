@@ -4,7 +4,7 @@ import sqlite3
 _DATABASE_FILE = 'records.db'
 
 _PARTICIPANT_REG_RESPONSES_TABLE_NAME = 'participant_reg_responses'
-_MENTOR_REG_RESPONSES_TABLE_NAME = 'judge_reg_responses'
+_MENTOR_REG_RESPONSES_TABLE_NAME = 'mentor_reg_responses'
 _JUDGE_REG_RESPONSES_TABLE_NAME = 'judge_reg_responses'
 
 _PARTICIPANT_TABLE_NAME = 'participants'
@@ -333,6 +333,93 @@ def get_team_size(team_id: int) -> int:
     return _cursor.execute(f'SELECT COUNT(*) FROM {_PARTICIPANT_TABLE_NAME} WHERE team_id=:team_id', {
         'team_id': team_id}).fetchone()[0]
 
+def get_team_name(team_id: int) -> str:
+    """Get the name of a team.
+    
+    Requires that team_id is the ID of a team record.
+
+    Args:
+        team_id (int): ID of the team record
+
+    Returns:
+        str: Name of the team
+    """
+
+    return _cursor.execute(f'SELECT name FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+        'team_id': team_id}).fetchone()[0]
+
+def get_team_role_id(team_id: int) -> int:
+    """Get the role ID for a team.
+
+    Requires that team_id is the ID of a team record.
+
+    Args:
+        team_id (int): ID of the team record
+
+    Returns:
+        int: ID of the team role
+    """
+
+    return _cursor.execute(f'SELECT role_id FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+        'team_id': team_id}).fetchone()[0]
+
+def get_team_category_channel_id(team_id: int) -> int:
+    """Get the category channel ID for a team.
+
+    Requires that team_id is the ID of a team record.
+
+    Args:
+        team_id (int): ID of the team record
+
+    Returns:
+        int: ID of the team category channel
+    """
+
+    return _cursor.execute(f'SELECT category_channel_id FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+        'team_id': team_id}).fetchone()[0]
+
+def get_team_text_channel_id(team_id: int) -> int:
+    """Get the text channel ID for a team.
+
+    Requires that team_id is the ID of a team record.
+
+    Args:
+        team_id (int): ID of the team record
+
+    Returns:
+        int: ID of the team text channel
+    """
+
+    return _cursor.execute(f'SELECT text_channel_id FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+        'team_id': team_id}).fetchone()[0]
+
+def get_team_voice_channel_id(team_id: int) -> int:
+    """Get the voice channel ID for a team.
+
+    Requires that team_id is the ID of a team record.
+
+    Args:
+        team_id (int): ID of the team record
+
+    Returns:
+        int: ID of the team voice channel
+    """
+
+    return _cursor.execute(f'SELECT voice_channel_id FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+        'team_id': team_id}).fetchone()[0]
+
+def team_exists(team_id: int) -> bool:
+    """Check if there exists a team record with a given team ID.
+    
+    Args:
+        team_id (int): ID to check
+    
+    Returns:
+        bool: If there exists a team with ID team_id
+    """
+
+    return _cursor.execute(f'SELECT COUNT(*) FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+        'team_id': team_id}).fetchone()[0] > 0
 
 _db_file_exists = os.path.isfile(_DATABASE_FILE)
 _connection = sqlite3.connect(_DATABASE_FILE, isolation_level=None)
@@ -340,3 +427,4 @@ _cursor = _connection.cursor()
 
 if not _db_file_exists:
     _initialize_db(_cursor)
+
