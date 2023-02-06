@@ -1,20 +1,41 @@
+import asyncio
 import nextcord
 from nextcord.ext import commands, application_checks
 import records
-import util
+import config
 
 _intents = nextcord.Intents.default()
+_intents.members = True
 
 _bot = commands.Bot(intents=_intents)
-_bot.default_guild_ids.append(int(util.config['discord']['guild_id']))
+_bot.default_guild_ids.append(config.discord_guild_id)
+
+_MAX_TEAM_SIZE = 4
+_TEAM_FORMATION_TIMEOUT = 60
 
 
-def create_team_channels(team: records.Team):
-    pass
+async def _handle_permission_error(interaction: nextcord.Interaction, error: nextcord.ApplicationError):
+    if isinstance(error, application_checks.errors.ApplicationMissingRole):
+        await interaction.send(ephemeral=True,
+                               content='You do not have permission to use this command.')
+    else:
+        raise error
 
 
-def delete_team_channels(team: records.Team):
-    pass
+async def _handle_team_formation_timeout(interaction: nextcord.Interaction, team_id: int):
+    if records.team_exists(team_id) and records.get_team_size(team_id) <= 1:
+        records.remove_from_team(interaction.user.id)
+        await _delete_team(interaction.guild, team_id)
+        await interaction.followup.send(ephemeral=True,
+                                        content='Team formation timed out. Teams must have at least two members 1 minute after creation to be saved. You must re-create your team and use the `/addmember` command to add members to your team within one minute of using the `/createteam` command.')
+
+
+async def _delete_team(guild: nextcord.Guild, team_id: int):
+    await guild.get_role(records.get_team_role_id(team_id)).delete()
+    await guild.get_channel(records.get_team_voice_channel_id(team_id)).delete()
+    await guild.get_channel(records.get_team_text_channel_id(team_id)).delete()
+    await guild.get_channel(records.get_team_category_channel_id(team_id)).delete()
+    records.drop_team(team_id)
 
 
 @_bot.event
@@ -23,128 +44,180 @@ async def on_ready():
         f'STATUS: Connected to Discord as "{ _bot.user }", ID { _bot.user.id }')
 
 
-@_bot.slash_command(description="Verify your Discord account for this event")
+@_bot.slash_command(description="Verify your Discord account as a participant for this event")
 async def verify(
-        interaction: nextcord.Interaction,
-        email: str = nextcord.SlashOption(
-            description="The email address you used to register for this event",
-            required=True)):
+    interaction: nextcord.Interaction,
+    email: str = nextcord.SlashOption(
+        description="Email address used to register for this event",
+        required=True)):
 
     await interaction.response.defer(ephemeral=True)
 
-    record = records.Participant.get_by_discord_id(interaction.user.id)
-
-    # Participant is already verified
-    if record is not None:
+    # User is already verified as a participant
+    if records.is_verified_participant(interaction.user.id):
         await interaction.followup.send(ephemeral=True,
-                                        content=f"You have already been verified. Head over to the { _bot.get_channel(int(util.config['discord']['start_here_channel_id'])).mention } channel for instructions on next steps.")
+                                        content=f'Verification failed. You have already been verified. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
         return
 
-    record = records.Participant.get_by_email(email)
-
-    # Participant email not found
-    if record is None:
+    # User is not in the registration records
+    if not records.participant_response_exists(email, str(interaction.user)):
         await interaction.followup.send(ephemeral=True,
-                                        content=f"Verification failed. The email address `<{email}>` could not be found in our records. Registration is required in order to participate in this event. If you have not already registered, please register at { util.config['contact']['registration_link'] }, then run the `verify` command again. Please contact an organizer at `<{ util.config['contact']['organizer_email'] }`> or in the { _bot.get_channel(int(util.config['discord']['ask_organizer_channel_id'])).mention } channel if you believe this is an error.")
+                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Registration is required to participate in this event. If you have not already registered, please register at {config.contact_registration_link}, then run the `/verify` command again. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
-    tag = f'{interaction.user.name}#{interaction.user.discriminator}'
-
-    # Discord tag doesn't match records
-    if record.discord_tag != tag:
-        await interaction.followup.send(ephemeral=True,
-                                        content=f"Verification failed. The email address `<{email}>` does not match your Discord tag `{tag}` in our records. Please contact an organizer at `<{ util.config['contact']['organizer_email'] }`> or in the { _bot.get_channel(int(util.config['discord']['ask_organizer_channel_id'])).mention } channel if you believe this is an error.")
-        return
-
-    record.discord_id = interaction.user.id
-
+    # Happy case
+    records.add_participant(interaction.user.id, email)
+    interaction.user.add_roles(interaction.guild.get_role(
+        config.discord_participant_role_id))
     await interaction.followup.send(ephemeral=True,
-                                    content=f"You have been successfully verified. You now have access to the Discord server. Head over to the { _bot.get_channel(int(util.config['discord']['start_here_channel_id'])).mention } channel for instructions on next steps.")
+                                    content=f'Verification succeeded. You now have access to the Discord server. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
 
 
-@_bot.slash_command(description="Manually verify a participant")
-@application_checks.has_role(int(util.config['discord']['organizer_role_id']))
-async def manualverify(
+@_bot.slash_command(description="Manually verify a Discord account as a participant for this event (Organizers only)")
+@application_checks.has_role(config.discord_organizer_role_id)
+async def overify(
         interaction: nextcord.Interaction,
         member: nextcord.Member = nextcord.SlashOption(
-            description="The member to manually verify as a participant",
+            description="The user to verify as a participant",
             required=True
         ),
         email: str = nextcord.SlashOption(
-            description="The email address associated with the participant",
+            description="The email address of the participant",
             required=True
         )):
 
     await interaction.response.defer(ephemeral=True)
 
-    tag = f'{member.name}#{member.discriminator}'
-    record = records.Participant.get_by_discord_tag(tag)
-
-    if record is None:
-        record = records.Participant.insert_record(email, tag)
-    else:
-        record.email = email
-
-    record.discord_id = member.id
+    records.add_participant(member.id, email)
+    await member.add_roles(interaction.guild.get_role(config.discord_participant_role_id))
 
     await interaction.followup.send(ephemeral=True,
-                                    content=f'`{tag}` has been manually verified as a Participant with email `{email}`')
+                                    content=f'`{member} <{email}>` has been manually verified as a participant.')
+
+
+overify.error(_handle_permission_error)
 
 
 @_bot.slash_command(description="Create a new team for this event")
+@application_checks.has_role(config.discord_participant_role_id)
 async def createteam(
         interaction: nextcord.Interaction,
         name: str = nextcord.SlashOption(
-            description="Name of your team",
+            description="Team name",
             required=True
-        ),
-        participant1: nextcord.Member = nextcord.SlashOption(
-            description="Participant to add to your team",
-            required=True
-        ),
-        participant2: nextcord.Member = nextcord.SlashOption(
-            description="Participant to add to your team",
-            required=False
-        ),
-        participant3: nextcord.Member = nextcord.SlashOption(
-            description="Participant to add to your team",
-            required=False
         )):
 
-    await interaction.response.defer
+    await interaction.response.defer(ephemeral=True)
 
-    participants = [interaction.user, participant1]
-    if participant2 is not None:
-        participants.append(participant2)
-    if participant3 is not None:
-        participants.append(participant3)
-
-    participant_records = {}
-
-    for participant in participants:
-        participant_records[participant] = records.Participant.get_by_discord_id(
-            participant.id)
-
-    # Check if participants are not verified
-    unverified_participants = filter(
-        lambda pair: pair[1] is None, participant_records.items())
-    if len(unverified_participants) > 0:
-        unverified_tags = map(
-            lambda pair: f'{pair[0].name}#{pair[0].discriminator}', unverified_participants)
+    # Participant is already in a team
+    if records.is_participant_in_team(interaction.user.id):
         await interaction.followup.send(ephemeral=True,
-                                        content=f"Team creation failed. These user(s) have not been verified: { ', '.join(unverified_tags) }")
+                                        content=f'Team creation failed. You are already in the team {interaction.guild.get_role(records.get_team_role_id(records.get_team_id(interaction.user.id))).mention}. To create a new team, you must not currently be in a team.')
         return
 
-    # Check if participants are all not in teams
-    teamed_participants = filter(
-        lambda pair: pair[1].teamed, participant_records.items())
-    if len(teamed_participants) > 0:
-        teamed_tags = map(
-            lambda pair: f'{pair[0].name}#{pair[0].discriminator}', teamed_participants)
+    if len(name) > 90:
         await interaction.followup.send(ephemeral=True,
-                                        content=f"Team creation failed. These user(s) are already in a team: { ', '.join(teamed_tags) }")
+                                        content=f'Team creation failed. The team name `{name}` exceeds 90 characters. Team names must be between 1 and 90 characters long.')
         return
+
+    # Team name is taken
+    if records.is_team_name_used(name):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Team creation failed. There is already a team with the name `{name}`.')
+        return
+
+    # Happy case
+    team_role = await interaction.guild.create_role(name=name)
+    category_channel = await interaction.guild.create_category(name=f'Team ## - {name}',
+                                                               overwrites={
+                                                                   team_role: nextcord.PermissionOverwrite(view_channel=True),
+                                                                   interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+    text_channel = await category_channel.create_text_channel(name=f'{name.lower().replace(" ", "-")}-text')
+    voice_channel = await category_channel.create_voice_channel(name=f'{name} Voice')
+    team_id = records.create_team(
+        name, category_channel.id, text_channel.id, voice_channel.id, team_role.id)
+    records.add_to_team(interaction.user.id, team_id)
+    await category_channel.edit(name=f'Team {team_id} - {name}')
+    await interaction.user.add_roles(team_role)
+
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after 1 minute.')
+
+    # Start team formation timer
+    await asyncio.sleep(_TEAM_FORMATION_TIMEOUT)
+    await _handle_team_formation_timeout(interaction, team_id)
+
+createteam.error(_handle_permission_error)
+
+
+@_bot.slash_command(description="Add a member to your team")
+@application_checks.has_role(config.discord_participant_role_id)
+async def addmember(
+        interaction: nextcord.Interaction,
+        member: nextcord.Member = nextcord.SlashOption(
+            description="Member to add",
+            required=True
+        )):
+
+    await interaction.response.defer(ephemeral=True)
+
+    # Not in a team
+    if not records.is_participant_in_team(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Failed to add team member. You are not currently in a team. You must be in a team to add a team member.')
+        return
+
+    # Team is full
+    if records.get_team_size(records.get_team_id(interaction.user.id)) > _MAX_TEAM_SIZE:
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {_MAX_TEAM_SIZE} members.')
+        return
+
+    # Unverified member
+    if not records.is_verified_participant(member.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Failed to add team member. `{member}` is not a verified participant. All team members must be verified participants.')
+        return
+
+    # Member already in a team
+    if records.is_participant_in_team(member.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Failed to add team member. {member.mention} is already in a team. To join your team, they must leave their current team.')
+        return
+
+    # Happy path
+    team_role = interaction.guild.get_role(
+        records.get_team_role_id(records.get_team_id(interaction.user.id)))
+    await member.add_roles(team_role)
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'Team member added successfully. {member.mention} has been added to {team_role.mention}.')
+
+addmember.error(_handle_permission_error)
+
+
+@_bot.slash_command(description="Leave your current team")
+@application_checks.has_role(config.discord_participant_role_id)
+async def leaveteam(
+        interaction: nextcord.Interaction):
+
+    await interaction.response.defer(ephemeral=True)
+
+    # Not in a team
+    if not records.is_participant_in_team(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Failed to leave team. You are not currently in a team.')
+        return
+
+    # Happy path
+    team_id = records.get_team_id(interaction.user.id)
+    team_name = records.get_team_name(team_id)
+    records.remove_from_team(interaction.user.id)
+    if records.get_team_size(team_id) == 0:
+        await _delete_team(interaction.guild, team_id)
+
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'Team left successfully. You have left `{team_name}`.')
 
 
 def start():
-    _bot.run(util.config['discord']['token'])
+    _bot.run(config.discord_token)
