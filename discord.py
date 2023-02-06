@@ -68,10 +68,68 @@ async def verify(
 
     # Happy case
     records.add_participant(interaction.user.id, email)
-    interaction.user.add_roles(interaction.guild.get_role(
+    await interaction.user.add_roles(interaction.guild.get_role(
         config.discord_participant_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Verification succeeded. You now have access to the Discord server. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
+
+
+@_bot.slash_command(description="Verify your Discord account as a mentor for this event")
+async def mentify(
+    interaction: nextcord.Interaction,
+    email: str = nextcord.SlashOption(
+        description="Email address used to register for this event",
+        required=True)):
+
+    await interaction.response.defer(ephemeral=True)
+
+    # User is already verified as a mentor
+    if records.is_verified_mentor(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. You have already been verified.')
+        return
+
+    # User is not in the registration records
+    if not records.mentor_response_exists(email, str(interaction.user)):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+        return
+
+    # Happy case
+    records.add_mentor(interaction.user.id, email)
+    await interaction.user.add_roles(interaction.guild.get_role(
+        config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id))
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'Verification succeeded. You now have access to the Discord server.')
+
+
+@_bot.slash_command(description="Verify your Discord account as a judge for this event")
+async def judgify(
+    interaction: nextcord.Interaction,
+    email: str = nextcord.SlashOption(
+        description="Email address used to register for this event",
+        required=True)):
+
+    await interaction.response.defer(ephemeral=True)
+
+    # User is already verified as a judge
+    if records.is_verified_judge(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. You have already been verified. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
+        return
+
+    # User is not in the registration records
+    if not records.judge_response_exists(email, str(interaction.user)):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+        return
+
+    # Happy case
+    records.add_judge(interaction.user.id, email)
+    await interaction.user.add_roles(interaction.guild.get_role(
+        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id))
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'Verification succeeded. You now have access to the Discord server.')
 
 
 @_bot.slash_command(description="Manually verify a Discord account as a participant for this event (Organizers only)")
@@ -223,6 +281,7 @@ async def leaveteam(
                                     content=f'Team left successfully. You have left `{team_name}`.')
 
 leaveteam.error(_handle_permission_error)
+
 
 def start():
     _bot.run(config.discord_token)
