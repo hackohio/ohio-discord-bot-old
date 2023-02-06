@@ -24,6 +24,7 @@ async def _handle_permission_error(interaction: nextcord.Interaction, error: nex
 
 async def _handle_team_formation_timeout(interaction: nextcord.Interaction, team_id: int):
     if records.team_exists(team_id) and records.get_team_size(team_id) <= 1:
+        await interaction.user.remove_roles(interaction.guild.get_role(config.discord_team_assigned_role_id))
         records.remove_from_team(interaction.user.id)
         await _delete_team(interaction.guild, team_id)
         await interaction.followup.send(ephemeral=True,
@@ -138,7 +139,7 @@ async def createteam(
         name, category_channel.id, text_channel.id, voice_channel.id, team_role.id)
     records.add_to_team(interaction.user.id, team_id)
     await category_channel.edit(name=f'Team {team_id} - {name}')
-    await interaction.user.add_roles(team_role)
+    await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
 
     await interaction.followup.send(ephemeral=True,
                                     content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after 1 minute.')
@@ -186,9 +187,11 @@ async def addmember(
         return
 
     # Happy path
+    team_id = records.get_team_id(interaction.user.id)
     team_role = interaction.guild.get_role(
-        records.get_team_role_id(records.get_team_id(interaction.user.id)))
-    await member.add_roles(team_role)
+        records.get_team_role_id(team_id))
+    records.add_to_team(member.id, team_id)
+    await member.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Team member added successfully. {member.mention} has been added to {team_role.mention}.')
 
@@ -212,6 +215,7 @@ async def leaveteam(
     team_id = records.get_team_id(interaction.user.id)
     team_name = records.get_team_name(team_id)
     records.remove_from_team(interaction.user.id)
+    await interaction.user.remove_roles(interaction.guild.get_role(records.get_team_role_id(team_id)), interaction.guild.get_role(config.discord_team_assigned_role_id))
     if records.get_team_size(team_id) == 0:
         await _delete_team(interaction.guild, team_id)
 
