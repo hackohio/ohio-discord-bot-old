@@ -9,6 +9,14 @@ _bot = commands.Bot(intents=_intents)
 _bot.default_guild_ids.append(int(util.config['discord']['guild_id']))
 
 
+def create_team_channels(team: records.Team):
+    pass
+
+
+def delete_team_channels(team: records.Team):
+    pass
+
+
 @_bot.event
 async def on_ready():
     print(
@@ -81,6 +89,61 @@ async def manualverify(
 
     await interaction.followup.send(ephemeral=True,
                                     content=f'`{tag}` has been manually verified as a Participant with email `{email}`')
+
+
+@_bot.slash_command(description="Create a new team for this event")
+async def createteam(
+        interaction: nextcord.Interaction,
+        name: str = nextcord.SlashOption(
+            description="Name of your team",
+            required=True
+        ),
+        participant1: nextcord.Member = nextcord.SlashOption(
+            description="Participant to add to your team",
+            required=True
+        ),
+        participant2: nextcord.Member = nextcord.SlashOption(
+            description="Participant to add to your team",
+            required=False
+        ),
+        participant3: nextcord.Member = nextcord.SlashOption(
+            description="Participant to add to your team",
+            required=False
+        )):
+
+    await interaction.response.defer
+
+    participants = [interaction.user, participant1]
+    if participant2 is not None:
+        participants.append(participant2)
+    if participant3 is not None:
+        participants.append(participant3)
+
+    participant_records = {}
+
+    for participant in participants:
+        participant_records[participant] = records.Participant.get_by_discord_id(
+            participant.id)
+
+    # Check if participants are not verified
+    unverified_participants = filter(
+        lambda pair: pair[1] is None, participant_records.items())
+    if len(unverified_participants) > 0:
+        unverified_tags = map(
+            lambda pair: f'{pair[0].name}#{pair[0].discriminator}', unverified_participants)
+        await interaction.followup.send(ephemeral=True,
+                                        content=f"Team creation failed. These user(s) have not been verified: { ', '.join(unverified_tags) }")
+        return
+
+    # Check if participants are all not in teams
+    teamed_participants = filter(
+        lambda pair: pair[1].teamed, participant_records.items())
+    if len(teamed_participants) > 0:
+        teamed_tags = map(
+            lambda pair: f'{pair[0].name}#{pair[0].discriminator}', teamed_participants)
+        await interaction.followup.send(ephemeral=True,
+                                        content=f"Team creation failed. These user(s) are already in a team: { ', '.join(teamed_tags) }")
+        return
 
 
 def start():
