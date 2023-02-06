@@ -32,7 +32,7 @@ def push_mentor():
     else:
         abort(403)
 
-@_app.post('/push/juddge')
+@_app.post('/push/judge')
 def push_judge():
     if request.headers.get('api-key') == config.web_api_key:
         data = request.get_json()
