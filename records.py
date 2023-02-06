@@ -226,9 +226,10 @@ def create_team(name: str, category_channel_id: int, text_channel_id: int, voice
         int: The ID of the team record
     """
 
-    return _cursor.execute(f'INSERT INTO {_TEAM_TABLE_NAME} ( name, category_channel_id, text_channel_id, voice_channel_id, role_id ) VALUES ( :name, :category_channel_id, :text_channel_id, :voice_channel_id, :role_id ) RETURNING id', {
+    _cursor.execute(f'INSERT INTO {_TEAM_TABLE_NAME} ( name, category_channel_id, text_channel_id, voice_channel_id, role_id ) VALUES ( :name, :category_channel_id, :text_channel_id, :voice_channel_id, :role_id )', {
         'name': name, 'category_channel_id': category_channel_id, 'text_channel_id': text_channel_id, 'voice_channel_id': voice_channel_id, 'role_id': role_id
-    }).fetchone()[0]
+    })
+    return _cursor.lastrowid
 
 
 def drop_team(team_id: int):
