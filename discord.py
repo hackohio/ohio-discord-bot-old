@@ -148,7 +148,7 @@ async def overify(
     await interaction.response.defer(ephemeral=True)
 
     records.add_participant(member.id, email)
-    await member.add_roles(interaction.guild.get_role(config.discord_participant_role_id))
+    await member.add_roles(interaction.guild.get_role(config.discord_participant_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
     await interaction.followup.send(ephemeral=True,
                                     content=f'`{member} <{email}>` has been manually verified as a participant.')
