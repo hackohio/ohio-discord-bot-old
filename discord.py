@@ -61,13 +61,13 @@ async def verify(
         return
 
     # User is not in the registration records
-    if not records.participant_response_exists(email, str(interaction.user)):
+    if not records.participant_response_exists(email.lower(), str(interaction.user)):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Registration is required to participate in this event. If you have not already registered, please register at {config.contact_registration_link}, then run the `/verify` command again. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
     # Happy case
-    records.add_participant(interaction.user.id, email)
+    records.add_participant(interaction.user.id, email.lower())
     await interaction.user.add_roles(interaction.guild.get_role(
         config.discord_participant_role_id), interaction.guild.get_role(config.discord_verified_role_id))
     await interaction.followup.send(ephemeral=True,
@@ -90,13 +90,13 @@ async def mentify(
         return
 
     # User is not in the registration records
-    if not records.mentor_response_exists(email, str(interaction.user)):
+    if not records.mentor_response_exists(email.lower(), str(interaction.user)):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
     # Happy case
-    records.add_mentor(interaction.user.id, email)
+    records.add_mentor(interaction.user.id, email.lower())
     await interaction.user.add_roles(interaction.guild.get_role(
         config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
     await interaction.followup.send(ephemeral=True,
@@ -119,13 +119,13 @@ async def judgify(
         return
 
     # User is not in the registration records
-    if not records.judge_response_exists(email, str(interaction.user)):
+    if not records.judge_response_exists(email.lower(), str(interaction.user)):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
     # Happy case
-    records.add_judge(interaction.user.id, email)
+    records.add_judge(interaction.user.id, email.lower())
     await interaction.user.add_roles(interaction.guild.get_role(
         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
     await interaction.followup.send(ephemeral=True,
@@ -147,7 +147,7 @@ async def overify(
 
     await interaction.response.defer(ephemeral=True)
 
-    records.add_participant(member.id, email)
+    records.add_participant(member.id, email.lower())
     await member.add_roles(interaction.guild.get_role(config.discord_participant_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
     await interaction.followup.send(ephemeral=True,
@@ -171,7 +171,7 @@ async def omentify(
 
     await interaction.response.defer(ephemeral=True)
 
-    records.add_mentor(member.id, email)
+    records.add_mentor(member.id, email.lower())
     await interaction.user.add_roles(interaction.guild.get_role(
         config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
@@ -196,7 +196,7 @@ async def ojudgify(
 
     await interaction.response.defer(ephemeral=True)
 
-    records.add_judge(member.id, email)
+    records.add_judge(member.id, email.lower())
     await interaction.user.add_roles(interaction.guild.get_role(
         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 

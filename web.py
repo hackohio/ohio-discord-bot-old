@@ -11,8 +11,8 @@ def push_participant():
     if request.headers.get('api-key') == config.web_api_key:
         data = request.get_json()
         try:
-            records.add_participant_response_entry(data['email'], data['discord_tag'])
-            return jsonify({'data': data['email'], 'discord_tag': data['discord_tag']})
+            records.add_participant_response_entry(str(data['email']).lower(), data['discord_tag'])
+            return jsonify({'email': str(data['email']).lower(), 'discord_tag': data['discord_tag']})
         except:
             abort(400)
             
@@ -24,8 +24,8 @@ def push_mentor():
     if request.headers.get('api-key') == config.web_api_key:
         data = request.get_json()
         try:
-            records.add_mentor_response_entry(data['email'], data['discord_tag'])
-            return jsonify({'data': data['email'], 'discord_tag': data['discord_tag']})
+            records.add_mentor_response_entry(str(data['email']).lower(), data['discord_tag'])
+            return jsonify({'email': str(data['email']).lower(), 'discord_tag': data['discord_tag']})
         except:
             abort(400)
             
@@ -37,8 +37,8 @@ def push_judge():
     if request.headers.get('api-key') == config.web_api_key:
         data = request.get_json()
         try:
-            records.add_judge_response_entry(data['email'], data['discord_tag'])
-            return jsonify({'data': data['email'], 'discord_tag': data['discord_tag']})
+            records.add_judge_response_entry(str(data['email']).lower(), data['discord_tag'])
+            return jsonify({'email': str(data['email']).lower(), 'discord_tag': data['discord_tag']})
         except:
             abort(400)
             
