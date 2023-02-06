@@ -69,7 +69,7 @@ async def verify(
     # Happy case
     records.add_participant(interaction.user.id, email)
     await interaction.user.add_roles(interaction.guild.get_role(
-        config.discord_participant_role_id))
+        config.discord_participant_role_id), interaction.guild.get_role(config.discord_verified_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Verification succeeded. You now have access to the Discord server. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
 
@@ -98,7 +98,7 @@ async def mentify(
     # Happy case
     records.add_mentor(interaction.user.id, email)
     await interaction.user.add_roles(interaction.guild.get_role(
-        config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id))
+        config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Verification succeeded. You now have access to the Discord server.')
 
@@ -127,7 +127,7 @@ async def judgify(
     # Happy case
     records.add_judge(interaction.user.id, email)
     await interaction.user.add_roles(interaction.guild.get_role(
-        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id))
+        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Verification succeeded. You now have access to the Discord server.')
 
@@ -155,6 +155,56 @@ async def overify(
 
 
 overify.error(_handle_permission_error)
+
+@_bot.slash_command(description="Manually verify a Discord account as a mentor for this event (Organizers only)")
+@application_checks.has_role(config.discord_organizer_role_id)
+async def omentify(
+        interaction: nextcord.Interaction,
+        member: nextcord.Member = nextcord.SlashOption(
+            description="The user to verify as a mentor",
+            required=True
+        ),
+        email: str = nextcord.SlashOption(
+            description="The email address of the mentor",
+            required=True
+        )):
+
+    await interaction.response.defer(ephemeral=True)
+
+    records.add_mentor(member.id, email)
+    await interaction.user.add_roles(interaction.guild.get_role(
+        config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
+
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'`{member} <{email}>` has been manually verified as a mentor.')
+
+
+omentify.error(_handle_permission_error)
+
+@_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
+@application_checks.has_role(config.discord_organizer_role_id)
+async def ojudgify(
+        interaction: nextcord.Interaction,
+        member: nextcord.Member = nextcord.SlashOption(
+            description="The user to verify as a judge",
+            required=True
+        ),
+        email: str = nextcord.SlashOption(
+            description="The email address of the judge",
+            required=True
+        )):
+
+    await interaction.response.defer(ephemeral=True)
+
+    records.add_judge(member.id, email)
+    await interaction.user.add_roles(interaction.guild.get_role(
+        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
+
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'`{member} <{email}>` has been manually verified as a judge.')
+
+
+ojudgify.error(_handle_permission_error)
 
 
 @_bot.slash_command(description="Create a new team for this event")

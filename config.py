@@ -15,6 +15,7 @@ _REQUIRED_CONFIG_ENTRIES = [
     ('discord', 'judge_role_id'),
     ('discord', 'team_assigned_role_id'),
     ('discord', 'all_access_pass_role_id'),
+    ('discord', 'verified_role_id'),
     ('contact', 'registration_link'),
     ('contact', 'organizer_email'),
     ('web', 'port'),
@@ -46,6 +47,7 @@ discord_mentor_role_id = int(_config['discord']['mentor_role_id'])
 discord_judge_role_id = int(_config['discord']['judge_role_id'])
 discord_team_assigned_role_id = int(_config['discord']['team_assigned_role_id'])
 discord_all_access_pass_role_id = int(_config['discord']['all_access_pass_role_id'])
+discord_verified_role_id = int(_config['discord'['verified_role_id']])
 contact_registration_link = _config['contact']['registration_link']
 contact_organizer_email = _config['contact']['organizer_email']
 web_port = int(_config['web']['port'])
