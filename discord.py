@@ -218,6 +218,7 @@ async def leaveteam(
     await interaction.followup.send(ephemeral=True,
                                     content=f'Team left successfully. You have left `{team_name}`.')
 
+leaveteam.error(_handle_permission_error)
 
 def start():
     _bot.run(config.discord_token)
