@@ -61,7 +61,8 @@ async def verify(
         return
 
     # User is not in the registration records
-    if not records.participant_response_exists(email.lower(), str(interaction.user)):
+    if not records.participant_response_exists(
+            email.lower(), str(interaction.user)):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Registration is required to participate in this event. If you have not already registered, please register at {config.contact_registration_link}, then run the `/verify` command again. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
@@ -90,7 +91,8 @@ async def mentify(
         return
 
     # User is not in the registration records
-    if not records.mentor_response_exists(email.lower(), str(interaction.user)):
+    if not records.mentor_response_exists(
+            email.lower(), str(interaction.user)):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
@@ -156,6 +158,7 @@ async def overify(
 
 overify.error(_handle_permission_error)
 
+
 @_bot.slash_command(description="Manually verify a Discord account as a mentor for this event (Organizers only)")
 @application_checks.has_role(config.discord_organizer_role_id)
 async def omentify(
@@ -180,6 +183,7 @@ async def omentify(
 
 
 omentify.error(_handle_permission_error)
+
 
 @_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
 @application_checks.has_role(config.discord_organizer_role_id)
@@ -244,7 +248,11 @@ async def createteam(
     text_channel = await category_channel.create_text_channel(name=f'{name.lower().replace(" ", "-")}-text')
     voice_channel = await category_channel.create_voice_channel(name=f'{name} Voice')
     team_id = records.create_team(
-        name, category_channel.id, text_channel.id, voice_channel.id, team_role.id)
+        name,
+        category_channel.id,
+        text_channel.id,
+        voice_channel.id,
+        team_role.id)
     records.add_to_team(interaction.user.id, team_id)
     await category_channel.edit(name=f'Team {team_id} - {name}')
     await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
@@ -277,7 +285,8 @@ async def addmember(
         return
 
     # Team is full
-    if records.get_team_size(records.get_team_id(interaction.user.id)) > _MAX_TEAM_SIZE:
+    if records.get_team_size(records.get_team_id(
+            interaction.user.id)) > _MAX_TEAM_SIZE:
         await interaction.followup.send(ephemeral=True,
                                         content=f'Failed to add team member. There is no space in your team. Teams can have a maximum of {_MAX_TEAM_SIZE} members.')
         return

@@ -39,14 +39,18 @@ for entry in _REQUIRED_CONFIG_ENTRIES:
 
 discord_guild_id = int(_config['discord']['guild_id'])
 discord_token = _config['discord']['token']
-discord_start_here_channel_id = int(_config['discord']['start_here_channel_id'])
-discord_ask_an_organizer_channel_id = int(_config['discord']['ask_an_organizer_channel_id'])
+discord_start_here_channel_id = int(
+    _config['discord']['start_here_channel_id'])
+discord_ask_an_organizer_channel_id = int(
+    _config['discord']['ask_an_organizer_channel_id'])
 discord_organizer_role_id = int(_config['discord']['organizer_role_id'])
 discord_participant_role_id = int(_config['discord']['participant_role_id'])
 discord_mentor_role_id = int(_config['discord']['mentor_role_id'])
 discord_judge_role_id = int(_config['discord']['judge_role_id'])
-discord_team_assigned_role_id = int(_config['discord']['team_assigned_role_id'])
-discord_all_access_pass_role_id = int(_config['discord']['all_access_pass_role_id'])
+discord_team_assigned_role_id = int(
+    _config['discord']['team_assigned_role_id'])
+discord_all_access_pass_role_id = int(
+    _config['discord']['all_access_pass_role_id'])
 discord_verified_role_id = int(_config['discord']['verified_role_id'])
 contact_registration_link = _config['contact']['registration_link']
 contact_organizer_email = _config['contact']['organizer_email']
