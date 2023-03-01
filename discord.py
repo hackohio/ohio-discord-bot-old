@@ -175,7 +175,7 @@ async def omentify(
     await interaction.response.defer(ephemeral=True)
 
     records.add_mentor(member.id, email.lower())
-    await interaction.user.add_roles(interaction.guild.get_role(
+    await member.add_roles(interaction.guild.get_role(
         config.discord_mentor_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
     await interaction.followup.send(ephemeral=True,
@@ -201,7 +201,7 @@ async def ojudgify(
     await interaction.response.defer(ephemeral=True)
 
     records.add_judge(member.id, email.lower())
-    await interaction.user.add_roles(interaction.guild.get_role(
+    await member.add_roles(interaction.guild.get_role(
         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
     await interaction.followup.send(ephemeral=True,
