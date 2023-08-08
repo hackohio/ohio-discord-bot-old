@@ -62,9 +62,9 @@ async def verify(
 
     # User is not in the registration records
     if not records.participant_response_exists(
-            email.lower(), str(interaction.user)):
+            email.lower(), str(interaction.user.name)):
         await interaction.followup.send(ephemeral=True,
-                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Registration is required to participate in this event. If you have not already registered, please register at {config.contact_registration_link}, then run the `/verify` command again. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord username `{interaction.user.name}` could be found. Registration is required to participate in this event. If you have not already registered, please register at {config.contact_registration_link}, then run the `/verify` command again. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
     # Happy case
@@ -92,9 +92,9 @@ async def mentify(
 
     # User is not in the registration records
     if not records.mentor_response_exists(
-            email.lower(), str(interaction.user)):
+            email.lower(), str(interaction.user.name)):
         await interaction.followup.send(ephemeral=True,
-                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord uername `{interaction.user.name}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
     # Happy case
@@ -121,9 +121,9 @@ async def judgify(
         return
 
     # User is not in the registration records
-    if not records.judge_response_exists(email.lower(), str(interaction.user)):
+    if not records.judge_response_exists(email.lower(), str(interaction.user.name)):
         await interaction.followup.send(ephemeral=True,
-                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord tag `{interaction.user}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord username `{interaction.user.name}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
         return
 
     # Happy case

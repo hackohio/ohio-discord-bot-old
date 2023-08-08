@@ -17,11 +17,11 @@ _TEAM_TABLE_NAME = 'teams'
 def _initialize_db(cursor: sqlite3.Cursor):
     # Registration form responses
     cursor.execute(
-        f'CREATE TABLE {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} ( email TEXT NOT NULL, discord_tag TEXT NOT NULL )')
+        f'CREATE TABLE {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} ( email TEXT NOT NULL, discord_username TEXT NOT NULL )')
     cursor.execute(
-        f'CREATE TABLE {_MENTOR_REG_RESPONSES_TABLE_NAME} ( email TEXT NOT NULL, discord_tag TEXT NOT NULL )')
+        f'CREATE TABLE {_MENTOR_REG_RESPONSES_TABLE_NAME} ( email TEXT NOT NULL, discord_username TEXT NOT NULL )')
     cursor.execute(
-        f'CREATE TABLE {_JUDGE_REG_RESPONSES_TABLE_NAME} ( email TEXT NOT NULL, discord_tag TEXT NOT NULL )')
+        f'CREATE TABLE {_JUDGE_REG_RESPONSES_TABLE_NAME} ( email TEXT NOT NULL, discord_username TEXT NOT NULL )')
 
     # Verified users
     cursor.execute(
@@ -35,100 +35,100 @@ def _initialize_db(cursor: sqlite3.Cursor):
     cursor.execute(f'CREATE TABLE {_TEAM_TABLE_NAME} ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, category_channel_id INTEGER NOT NULL, text_channel_id INTEGER NOT NULL, voice_channel_id INTEGER NOT NULL, role_id INTEGER NOT NULL )')
 
 
-def add_participant_response_entry(email: str, discord_tag: str):
+def add_participant_response_entry(email: str, discord_username: str):
     """Add a participant registration response entry to the records.
 
     Args:
         email (str): The email address for the entry to add
-        discord_tag (str): The Discord tahg for the entry to add
+        discord_username (str): The Discord username for the entry to add
     """
 
     _cursor.execute(
-        f'INSERT INTO {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} ( email, discord_tag ) VALUES ( :email, :discord_tag )', {
-            'email': email, 'discord_tag': discord_tag})
+        f'INSERT INTO {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} ( email, discord_username ) VALUES ( :email, :discord_username )', {
+            'email': email, 'discord_username': discord_username})
 
 
-def add_mentor_response_entry(email: str, discord_tag: str):
+def add_mentor_response_entry(email: str, discord_username: str):
     """Add a mentor registration response entry to the records.
 
     Args:
         email (str): The email address for the entry to add
-        discord_tag (str): The Discord tahg for the entry to add
+        discord_username (str): The Discord username for the entry to add
     """
 
     _cursor.execute(
-        f'INSERT INTO {_MENTOR_REG_RESPONSES_TABLE_NAME} ( email, discord_tag ) VALUES ( :email, :discord_tag )', {
-            'email': email, 'discord_tag': discord_tag})
+        f'INSERT INTO {_MENTOR_REG_RESPONSES_TABLE_NAME} ( email, discord_username ) VALUES ( :email, :discord_username )', {
+            'email': email, 'discord_username': discord_username})
 
 
-def add_judge_response_entry(email: str, discord_tag: str):
+def add_judge_response_entry(email: str, discord_username: str):
     """Add a judge registration response entry to the records.
 
     Args:
         email (str): The email address for the entry to add
-        discord_tag (str): The Discord tahg for the entry to add
+        discord_username (str): The Discord username for the entry to add
     """
 
     _cursor.execute(
-        f'INSERT INTO {_JUDGE_REG_RESPONSES_TABLE_NAME} ( email, discord_tag ) VALUES ( :email, :discord_tag )', {
-            'email': email, 'discord_tag': discord_tag})
+        f'INSERT INTO {_JUDGE_REG_RESPONSES_TABLE_NAME} ( email, discord_username ) VALUES ( :email, :discord_username )', {
+            'email': email, 'discord_username': discord_username})
 
 
-def participant_response_exists(email: str, discord_tag: str) -> bool:
+def participant_response_exists(email: str, discord_username: str) -> bool:
     """Check if there exists a participant registration response entry with the
-    given email address and Discord tag.
+    given email address and Discord username.
 
     Args:
         email (str): The email address
-        discord_tag (str): The Discord tag
+        discord_username (str): The Discord username
 
     Returns:
-        bool: If there is a record with the given email address and Discord tag
+        bool: If there is a record with the given email address and Discord username
     """
 
     return _cursor.execute(
-        f'SELECT COUNT(*) FROM {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_tag=:discord_tag',
+        f'SELECT COUNT(*) FROM {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_username=:discord_username',
         {
             'email': email,
-            'discord_tag': discord_tag}).fetchone()[0] > 0
+            'discord_username': discord_username}).fetchone()[0] > 0
 
 
-def mentor_response_exists(email: str, discord_tag: str) -> bool:
+def mentor_response_exists(email: str, discord_username: str) -> bool:
     """Check if there exists a mentor registration response entry with the
-    given email address and Discord tag.
+    given email address and Discord username.
 
     Args:
         email (str): The email address
-        discord_tag (str): The Discord tag
+        discord_username (str): The Discord username
 
     Returns:
-        bool: If there is a record with the given email address and Discord tag
+        bool: If there is a record with the given email address and Discord username
     """
 
     return _cursor.execute(
-        f'SELECT COUNT(*) FROM {_MENTOR_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_tag=:discord_tag',
+        f'SELECT COUNT(*) FROM {_MENTOR_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_username=:discord_username',
         {
             'email': email,
-            'discord_tag': discord_tag}).fetchone()[0] > 0
+            'discord_username': discord_username}).fetchone()[0] > 0
 
 
-def judge_response_exists(email: str, discord_tag: str) -> bool:
+def judge_response_exists(email: str, discord_username: str) -> bool:
     """Check if there exists a judge registration response entry with the
-    given email address and Discord tag.
+    given email address and Discord username.
 
     Args:
         email (str): The email address
-        discord_tag (str): The Discord tag
+        discord_username (str): The Discord username
 
     Returns:
-        bool: If there is a record with the given email address and Discord tag
+        bool: If there is a record with the given email address and Discord username
     """
 
     return _cursor.execute(
-        f'SELECT COUNT(*) FROM {_JUDGE_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_tag=:discord_tag',
+        f'SELECT COUNT(*) FROM {_JUDGE_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_username=:discord_username',
         {
             'email': email,
-            'discord_tag': discord_tag}).fetchone()[0] > 0
+            'discord_username': discord_username}).fetchone()[0] > 0
 
 
 def add_participant(discord_id: int, email: str):

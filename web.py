@@ -13,9 +13,9 @@ def push_participant():
         data = request.get_json()
         try:
             records.add_participant_response_entry(
-                str(data['email']).lower(), data['discord_tag'])
+                str(data['email']).lower(), data['discord_username'])
             return jsonify(
-                {'email': str(data['email']).lower(), 'discord_tag': data['discord_tag']})
+                {'email': str(data['email']).lower(), 'discord_username': data['discord_username']})
         except BaseException:
             abort(400)
 
@@ -29,9 +29,9 @@ def push_mentor():
         data = request.get_json()
         try:
             records.add_mentor_response_entry(
-                str(data['email']).lower(), data['discord_tag'])
+                str(data['email']).lower(), data['discord_username'])
             return jsonify(
-                {'email': str(data['email']).lower(), 'discord_tag': data['discord_tag']})
+                {'email': str(data['email']).lower(), 'discord_username': data['discord_username']})
         except BaseException:
             abort(400)
 
@@ -45,9 +45,9 @@ def push_judge():
         data = request.get_json()
         try:
             records.add_judge_response_entry(
-                str(data['email']).lower(), data['discord_tag'])
+                str(data['email']).lower(), data['discord_username'])
             return jsonify(
-                {'email': str(data['email']).lower(), 'discord_tag': data['discord_tag']})
+                {'email': str(data['email']).lower(), 'discord_username': data['discord_username']})
         except BaseException:
             abort(400)
 
