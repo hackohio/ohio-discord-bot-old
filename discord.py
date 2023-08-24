@@ -24,8 +24,9 @@ async def _handle_permission_error(interaction: nextcord.Interaction, error: nex
 
 async def _handle_team_formation_timeout(interaction: nextcord.Interaction, team_id: int):
     if records.team_exists(team_id) and records.get_team_size(team_id) <= 1:
-        await interaction.user.remove_roles(interaction.guild.get_role(config.discord_team_assigned_role_id))
-        records.remove_from_team(interaction.user.id)
+        for record in records.get_team_members(team_id):
+            await interaction.guild.get_member(record[0]).remove_roles(interaction.guild.get_role(config.discord_team_assigned_role_id))
+            records.remove_from_team(record[0])
         await _delete_team(interaction.guild, team_id)
         await interaction.followup.send(ephemeral=True,
                                         content='Team formation timed out. Teams must have at least two members 1 minute after creation to be saved. You must re-create your team and use the `/addmember` command to add members to your team within one minute of using the `/createteam` command.')

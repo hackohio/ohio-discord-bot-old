@@ -456,6 +456,22 @@ def team_exists(team_id: int) -> bool:
             'team_id': team_id}).fetchone()[0] > 0
 
 
+def get_team_members(team_id):
+    """Gets a list of participant IDs for participants in a team with a given
+    team ID.
+
+    Requires that team_id is the ID of a team record.
+
+    Args:
+        team_id (int): ID of tram record
+
+    Returns:
+        [int]: List of participant IDs
+    """
+
+    return _cursor.execute(f'SELECT discord_id FROM {_PARTICIPANT_TABLE_NAME} WHERE team_id=:team_id', {'team_id': team_id}).fetchall()
+
+
 _db_file_exists = os.path.isfile(_DATABASE_FILE)
 _connection = sqlite3.connect(_DATABASE_FILE, isolation_level=None)
 _cursor = _connection.cursor()
