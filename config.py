@@ -48,7 +48,7 @@ discord_organizer_role_id = int(_config['discord']['organizer_role_id'])
 discord_participant_role_id = int(_config['discord']['participant_role_id'])
 discord_mentor_role_id = int(_config['discord']['mentor_role_id'])
 discord_judge_role_id = int(_config['discord']['judge_role_id'])
-discord_judge_role_id = int(_config['discord']['volunteer_role_id'])
+discord_volunteer_role_id = int(_config['discord']['volunteer_role_id'])
 discord_team_assigned_role_id = int(
     _config['discord']['team_assigned_role_id'])
 discord_all_access_pass_role_id = int(
