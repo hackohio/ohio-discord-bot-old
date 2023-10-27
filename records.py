@@ -251,6 +251,11 @@ def create_team(
     return _cursor.lastrowid
 
 
+def update_team(id: int, text_channel_id, voice_channel_id):
+    _cursor.execute(f'UPDATE {_TEAM_TABLE_NAME} SET text_channel_id=:text_channel_id, voice_channel_id:voice_channel_id WHERE id=:id', {
+        'id': id, 'text_channel_id': text_channel_id, 'voice_channel_id': voice_channel_id
+    })
+
 def drop_team(team_id: int):
     """Drop a record for a team.
 
