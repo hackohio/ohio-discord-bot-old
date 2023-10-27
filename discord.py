@@ -247,7 +247,7 @@ async def createteam(
     #                                                                team_role: nextcord.PermissionOverwrite(view_channel=True),
     #                                                                interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
 
-    category_channel = await interaction.guild.get_channel(1167564923388313711)
+    category_channel = interaction.guild.get_channel(1167564923388313711)
 
     team_id = records.create_team(
         name,
