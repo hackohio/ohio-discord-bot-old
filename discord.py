@@ -247,8 +247,6 @@ async def createteam(
     #                                                                team_role: nextcord.PermissionOverwrite(view_channel=True),
     #                                                                interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
 
-    category_channel = interaction.guild.get_channel(1167564923388313711)
-
     team_id = records.create_team(
         name,
         # category_channel.id,
@@ -256,6 +254,15 @@ async def createteam(
         0,
         0,
         team_role.id)
+    
+    category_num = (team_id - 1) // 25
+
+    if category_num == 6: # 151-175
+        category_channel = interaction.guild.get_channel(1167564923388313711)
+    elif category_num == 7: # 176-200
+        category_channel = interaction.guild.get_channel(1167582172262170694)
+    elif category_num == 8: # 201-225
+        category_channel = interaction.guild.get_channel(1167582340210507836)
 
     text_channel = await interaction.guild.create_text_channel(name=f'{team_id}-{name.lower().replace(" ", "-")}-text',
                                                                category=category_channel,
