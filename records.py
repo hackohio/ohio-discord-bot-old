@@ -252,7 +252,7 @@ def create_team(
 
 
 def update_team(id: int, text_channel_id, voice_channel_id):
-    _cursor.execute(f'UPDATE {_TEAM_TABLE_NAME} SET text_channel_id=:text_channel_id, voice_channel_id:voice_channel_id WHERE id=:id', {
+    _cursor.execute(f'UPDATE {_TEAM_TABLE_NAME} SET text_channel_id=:text_channel_id, voice_channel_id=:voice_channel_id WHERE id=:id', {
         'id': id, 'text_channel_id': text_channel_id, 'voice_channel_id': voice_channel_id
     })
 
