@@ -36,7 +36,7 @@ async def _delete_team(guild: nextcord.Guild, team_id: int):
     await guild.get_role(records.get_team_role_id(team_id)).delete()
     await guild.get_channel(records.get_team_voice_channel_id(team_id)).delete()
     await guild.get_channel(records.get_team_text_channel_id(team_id)).delete()
-    await guild.get_channel(records.get_team_category_channel_id(team_id)).delete()
+    # await guild.get_channel(records.get_team_category_channel_id(team_id)).delete()
     records.drop_team(team_id)
 
 
@@ -136,7 +136,7 @@ async def judgify(
 
 
 @_bot.slash_command(description="Manually verify a Discord account as a participant for this event (Organizers only)")
-@application_checks.has_role(config.discord_organizer_role_id)
+@application_checks.has_any_role(config.discord_organizer_role_id, config.discord_volunteer_role_id)
 async def overify(
         interaction: nextcord.Interaction,
         member: nextcord.Member = nextcord.SlashOption(
@@ -161,7 +161,7 @@ overify.error(_handle_permission_error)
 
 
 @_bot.slash_command(description="Manually verify a Discord account as a mentor for this event (Organizers only)")
-@application_checks.has_role(config.discord_organizer_role_id)
+@application_checks.has_any_role(config.discord_organizer_role_id, config.discord_volunteer_role_id)
 async def omentify(
         interaction: nextcord.Interaction,
         member: nextcord.Member = nextcord.SlashOption(
@@ -187,7 +187,7 @@ omentify.error(_handle_permission_error)
 
 
 @_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
-@application_checks.has_role(config.discord_organizer_role_id)
+@application_checks.has_any_role(config.discord_organizer_role_id, config.discord_volunteer_role_id)
 async def ojudgify(
         interaction: nextcord.Interaction,
         member: nextcord.Member = nextcord.SlashOption(
@@ -242,20 +242,29 @@ async def createteam(
 
     # Happy case
     team_role = await interaction.guild.create_role(name=name)
-    category_channel = await interaction.guild.create_category(name=f'Team ## - {name}',
-                                                               overwrites={
+    # category_channel = await interaction.guild.create_category(name=f'Team ## - {name}',
+    #                                                            overwrites={
+    #                                                                team_role: nextcord.PermissionOverwrite(view_channel=True),
+    #                                                                interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+    text_channel = await interaction.guild.create_text_channel(name=f'##-{name.lower().replace(" ", "-")}-text',
+                                                              overwrites={
                                                                    team_role: nextcord.PermissionOverwrite(view_channel=True),
                                                                    interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
-    text_channel = await category_channel.create_text_channel(name=f'{name.lower().replace(" ", "-")}-text')
-    voice_channel = await category_channel.create_voice_channel(name=f'{name} Voice')
+    voice_channel = await interaction.guild.create_voice_channel(name=f'## {name} Voice',
+                                                                overwrites={
+                                                                    team_role: nextcord.PermissionOverwrite(view_channel=True),
+                                                                    interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
     team_id = records.create_team(
         name,
-        category_channel.id,
+        # category_channel.id,
+        0,
         text_channel.id,
         voice_channel.id,
         team_role.id)
     records.add_to_team(interaction.user.id, team_id)
-    await category_channel.edit(name=f'Team {team_id} - {name}')
+    # await category_channel.edit(name=f'Team {team_id} - {name}')
+    await text_channel.edit(name=f'{team_id}-{name.lower().replace(" ", "-")}-text')
+    await voice_channel.edit(name=f'{team_id} {name} Voice')
     await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
 
     await interaction.followup.send(ephemeral=True,
