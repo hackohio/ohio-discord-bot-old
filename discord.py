@@ -106,33 +106,33 @@ async def mentify(
                                     content=f'Verification succeeded. You now have access to the Discord server.')
 
 
-@_bot.slash_command(description="Verify your Discord account as a judge for this event")
-async def judgify(
-    interaction: nextcord.Interaction,
-    email: str = nextcord.SlashOption(
-        description="Email address used to register for this event",
-        required=True)):
+# @_bot.slash_command(description="Verify your Discord account as a judge for this event")
+# async def judgify(
+#     interaction: nextcord.Interaction,
+#     email: str = nextcord.SlashOption(
+#         description="Email address used to register for this event",
+#         required=True)):
 
-    await interaction.response.defer(ephemeral=True)
+#     await interaction.response.defer(ephemeral=True)
 
-    # User is already verified as a judge
-    if records.is_verified_judge(interaction.user.id):
-        await interaction.followup.send(ephemeral=True,
-                                        content=f'Verification failed. You have already been verified. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
-        return
+#     # User is already verified as a judge
+#     if records.is_verified_judge(interaction.user.id):
+#         await interaction.followup.send(ephemeral=True,
+#                                         content=f'Verification failed. You have already been verified. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
+#         return
 
-    # User is not in the registration records
-    if not records.judge_response_exists(email.lower(), str(interaction.user.name)):
-        await interaction.followup.send(ephemeral=True,
-                                        content=f'Verification failed. No registration record with email address `<{email}>` and Discord username `{interaction.user.name}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
-        return
+#     # User is not in the registration records
+#     if not records.judge_response_exists(email.lower(), str(interaction.user.name)):
+#         await interaction.followup.send(ephemeral=True,
+#                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord username `{interaction.user.name}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+#         return
 
-    # Happy case
-    records.add_judge(interaction.user.id, email.lower())
-    await interaction.user.add_roles(interaction.guild.get_role(
-        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
-    await interaction.followup.send(ephemeral=True,
-                                    content=f'Verification succeeded. You now have access to the Discord server.')
+#     # Happy case
+#     records.add_judge(interaction.user.id, email.lower())
+#     await interaction.user.add_roles(interaction.guild.get_role(
+#         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
+#     await interaction.followup.send(ephemeral=True,
+#                                     content=f'Verification succeeded. You now have access to the Discord server.')
 
 
 @_bot.slash_command(description="Manually verify a Discord account as a participant for this event (Organizers only)")
@@ -186,30 +186,30 @@ async def omentify(
 omentify.error(_handle_permission_error)
 
 
-@_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
-@application_checks.has_role(config.discord_organizer_role_id)
-async def ojudgify(
-        interaction: nextcord.Interaction,
-        member: nextcord.Member = nextcord.SlashOption(
-            description="The user to verify as a judge",
-            required=True
-        ),
-        email: str = nextcord.SlashOption(
-            description="The email address of the judge",
-            required=True
-        )):
+# @_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
+# @application_checks.has_role(config.discord_organizer_role_id)
+# async def ojudgify(
+#         interaction: nextcord.Interaction,
+#         member: nextcord.Member = nextcord.SlashOption(
+#             description="The user to verify as a judge",
+#             required=True
+#         ),
+#         email: str = nextcord.SlashOption(
+#             description="The email address of the judge",
+#             required=True
+#         )):
 
-    await interaction.response.defer(ephemeral=True)
+#     await interaction.response.defer(ephemeral=True)
 
-    records.add_judge(member.id, email.lower())
-    await member.add_roles(interaction.guild.get_role(
-        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
+#     records.add_judge(member.id, email.lower())
+#     await member.add_roles(interaction.guild.get_role(
+#         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
-    await interaction.followup.send(ephemeral=True,
-                                    content=f'`{member} <{email}>` has been manually verified as a judge.')
+#     await interaction.followup.send(ephemeral=True,
+#                                     content=f'`{member} <{email}>` has been manually verified as a judge.')
 
 
-ojudgify.error(_handle_permission_error)
+# ojudgify.error(_handle_permission_error)
 
 
 @_bot.slash_command(description="Create a new team for this event")

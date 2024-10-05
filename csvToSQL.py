@@ -49,7 +49,6 @@ with open(FILENAME, 'r') as csv_file:
         if(userData):
             userArr.append(userData)
         
-
     #Add userArr Data to DB
     for i in range(len(userArr)):
         if ("participants" in FILENAME):
