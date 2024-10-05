@@ -8,13 +8,13 @@ import csv
 '''
 
 
-# FILENAME = "leaders.csv" 
-# ATTR_DIS = "Discord is required"
-# ATTR_EMAIL = "Q3"
+FILENAME = "leaders.csv" 
+ATTR_DIS = "Discord is required"
+ATTR_EMAIL = "Q3"
 
-FILENAME = "participants.csv" 
-ATTR_DIS = "Discord Username"
-ATTR_EMAIL = "Email"
+# FILENAME = "participants.csv" 
+# ATTR_DIS = "Discord Username"
+# ATTR_EMAIL = "Email"
 
 with open(FILENAME, 'r') as csv_file:
 
@@ -52,25 +52,18 @@ with open(FILENAME, 'r') as csv_file:
     #Add userArr Data to DB
     for i in range(len(userArr)):
         if ("participants" in FILENAME):
-            try:
-                records.add_participant_response_entry(userArr[i]['email'], userArr[i]['discord_username'])
-                print(f'User {i}: Added')
-            except:
-                print("Error adding data to DB")
-                break
-        elif ("leaders" in FILENAME):
-            try:
-                records.add_mentor_response_entry(userArr[i]['email'], userArr[i]['discord_username'])
-                print(f'Leader {i}: Added')
-            except:
-                print("Error adding data to DB")
-                break
-
-    #Check that all user have been entered
-    for i in range(len(userArr)):
-        if ("participants" in FILENAME):
             if not (records.participant_response_exists(userArr[i]['email'], userArr[i]['discord_username'])):
-                print(f"User {i}: not found in Database")
+                try:
+                    records.add_participant_response_entry(userArr[i]['email'], userArr[i]['discord_username'])
+                    print(f'User {i}: Added')
+                except:
+                    print("Error adding data to DB")
+                    break
         elif ("leaders" in FILENAME):
             if not (records.mentor_response_exists(userArr[i]['email'], userArr[i]['discord_username'])):
-                print(f"Leader {i}: not found in Database")
+                try:
+                    records.add_mentor_response_entry(userArr[i]['email'], userArr[i]['discord_username'])
+                    print(f'Leader {i}: Added')
+                except:
+                    print("Error adding data to DB")
+                    break
