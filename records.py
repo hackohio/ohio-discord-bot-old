@@ -231,7 +231,8 @@ def get_max_team_id() -> int:
     """
      
     _cursor.execute(f'SELECT MAX(id) FROM {_TEAM_TABLE_NAME}')
-    return _cursor.fetchone()[0]
+    last_id = _cursor.fetchone()[0] if _cursor.fetchone()[0] is not None else 0
+    return last_id
 
 def create_team(
         name: str,
