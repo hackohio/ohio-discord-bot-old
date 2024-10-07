@@ -236,15 +236,39 @@ async def createteam(
                                         content=f'Team creation failed. There is already a team with the name `{name}`.')
         return
 
+
     team_role = await interaction.guild.create_role(name=name)
-    text_channel = await interaction.guild.create_text_channel(name=f'##-{name.lower().replace(" ", "-")}-text',
+    
+    #If new channel needs to be made
+    team_id = records.get_max_team_id() + 1
+    max_category_num = 50
+    while(team_id > max_category_num):
+        max_category_num += 50
+
+    if (team_id == max_category_num - 49):
+        category_channel = await interaction.guild.create_category_channel(name=f'Teams {max_category_num-49}-{max_category_num}',
+                                                                        overwrites={
+                                                                            team_role: nextcord.PermissionOverwrite(view_channel=True),
+                                                                            interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+    else:
+        #Find valid team below team id
+        search_team_id = team_id - 1
+        while(not records.team_exists(search_team_id)):
+            search_team_id -= 1
+
+        category_channel = await interaction.guild.get_channel(records.get_team_category_channel_id(search_team_id))
+
+    text_channel = await category_channel.create_text_channel(name=f'##-{name.lower().replace(" ", "-")}-text',
                                                                 overwrites={
                                                                 team_role: nextcord.PermissionOverwrite(view_channel=True),
                                                                 interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+
     team_id = records.create_team(
         name,
         text_channel.id,
+        category_channel.id,
         team_role.id)
+    
     records.add_to_team(interaction.user.id, team_id)
     await text_channel.edit(name=f'{team_id}-{name.lower().replace(" ", "-")}-text')
     await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
