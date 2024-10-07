@@ -256,7 +256,7 @@ async def createteam(
         while(not records.team_exists(search_team_id)):
             search_team_id -= 1
 
-        category_channel = await interaction.guild.get_channel(records.get_team_category_channel_id(search_team_id))
+        category_channel = interaction.guild.get_channel(records.get_team_category_channel_id(search_team_id))
 
     text_channel = await category_channel.create_text_channel(name=f'##-{name.lower().replace(" ", "-")}-text',
                                                                 overwrites={
