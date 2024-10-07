@@ -32,7 +32,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
         f'CREATE TABLE {_JUDGE_TABLE_NAME} ( discord_id INTEGER PRIMARY KEY, email TEXT NOT NULL )')
 
     # Teams
-    cursor.execute(f'CREATE TABLE {_TEAM_TABLE_NAME} ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, category_channel_id INTEGER NOT NULL, text_channel_id INTEGER NOT NULL, role_id INTEGER NOT NULL )')
+    cursor.execute(f'CREATE TABLE {_TEAM_TABLE_NAME} ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, text_channel_id INTEGER NOT NULL, role_id INTEGER NOT NULL )')
 
 
 def add_participant_response_entry(email: str, discord_username: str):
@@ -236,7 +236,6 @@ def get_max_team_id() -> int:
 
 def create_team(
         name: str,
-        category_channel_id: int,
         text_channel_id: int,
         role_id: int) -> int:
     """Create a record for a new team.
@@ -254,8 +253,8 @@ def create_team(
         int: The ID of the team record
     """
 
-    _cursor.execute(f'INSERT INTO {_TEAM_TABLE_NAME} ( name, category_channel_id, text_channel_id, role_id ) VALUES ( :name, :category_channel_id, :text_channel_id, :role_id )', {
-                    'name': name, 'category_channel_id': category_channel_id, 'text_channel_id': text_channel_id, 'role_id': role_id})
+    _cursor.execute(f'INSERT INTO {_TEAM_TABLE_NAME} ( name, text_channel_id, role_id ) VALUES ( :name, :text_channel_id, :role_id )', {
+                    'name': name, 'text_channel_id': text_channel_id, 'role_id': role_id})
     return _cursor.lastrowid
 
 
