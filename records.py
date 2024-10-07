@@ -230,7 +230,7 @@ def get_max_team_id() -> int:
         int: Max team_id in the table
     """
      
-    return _cursor.execute(f'SELECT MAX(id) FROM {_TEAM_TABLE_NAME}')
+    return _cursor.execute(f'SELECT MAX(id) FROM {_TEAM_TABLE_NAME}').fetchone()[0]
 
 def create_team(
         name: str,
