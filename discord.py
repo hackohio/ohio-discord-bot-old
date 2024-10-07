@@ -245,7 +245,7 @@ async def createteam(
     while(team_id > max_category_num):
         max_category_num += 50
 
-    if (team_id == max_category_num - 2):
+    if (team_id == max_category_num - 49):
         category_channel = await interaction.guild.create_category_channel(name=f'Teams {max_category_num-49}-{max_category_num}',
                                                                         overwrites={
                                                                             team_role: nextcord.PermissionOverwrite(view_channel=True),
