@@ -220,10 +220,10 @@ async def createteam(
     await interaction.response.defer(ephemeral=True)
 
     # Participant is already in a team
-    # if records.is_participant_in_team(interaction.user.id):
-    #     await interaction.followup.send(ephemeral=True,
-    #                                     content=f'Team creation failed. You are already in the team {interaction.guild.get_role(records.get_team_role_id(records.get_team_id(interaction.user.id))).mention}. To create a new team, you must not currently be in a team.')
-    #     return
+    if records.is_participant_in_team(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Team creation failed. You are already in the team {interaction.guild.get_role(records.get_team_role_id(records.get_team_id(interaction.user.id))).mention}. To create a new team, you must not currently be in a team.')
+        return
 
     if len(name) > 90:
         await interaction.followup.send(ephemeral=True,
@@ -231,22 +231,22 @@ async def createteam(
         return
 
     # Team name is taken
-    # if records.is_team_name_used(name):
-    #     await interaction.followup.send(ephemeral=True,
-    #                                     content=f'Team creation failed. There is already a team with the name `{name}`.')
-    #     return
+    if records.is_team_name_used(name):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Team creation failed. There is already a team with the name `{name}`.')
+        return
 
 
     team_role = await interaction.guild.create_role(name=name)
     
     #If new channel needs to be made
     team_id = records.get_max_team_id() + 1
-    max_category_num = 3
+    max_category_num = 50
     while(team_id > max_category_num):
-        max_category_num += 3
+        max_category_num += 50
 
     if (team_id == max_category_num - 2):
-        category_channel = await interaction.guild.create_category_channel(name=f'Teams {max_category_num-2}-{max_category_num}',
+        category_channel = await interaction.guild.create_category_channel(name=f'Teams {max_category_num-49}-{max_category_num}',
                                                                         overwrites={
                                                                             team_role: nextcord.PermissionOverwrite(view_channel=True),
                                                                             interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
