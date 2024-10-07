@@ -34,9 +34,8 @@ async def _handle_team_formation_timeout(interaction: nextcord.Interaction, team
 
 async def _delete_team(guild: nextcord.Guild, team_id: int):
     await guild.get_role(records.get_team_role_id(team_id)).delete()
-    await guild.get_channel(records.get_team_voice_channel_id(team_id)).delete()
     await guild.get_channel(records.get_team_text_channel_id(team_id)).delete()
-    await guild.get_channel(records.get_team_category_channel_id(team_id)).delete()
+    # await guild.get_channel(records.get_team_category_channel_id(team_id)).delete()
     records.drop_team(team_id)
 
 
@@ -108,31 +107,31 @@ async def mentify(
 
 # @_bot.slash_command(description="Verify your Discord account as a judge for this event")
 # async def judgify(
-#     interaction: nextcord.Interaction,
-#     email: str = nextcord.SlashOption(
-#         description="Email address used to register for this event",
-#         required=True)):
+    # interaction: nextcord.Interaction,
+    # email: str = nextcord.SlashOption(
+    #     description="Email address used to register for this event",
+    #     required=True)):
 
-#     await interaction.response.defer(ephemeral=True)
+    # await interaction.response.defer(ephemeral=True)
 
-#     # User is already verified as a judge
-#     if records.is_verified_judge(interaction.user.id):
-#         await interaction.followup.send(ephemeral=True,
-#                                         content=f'Verification failed. You have already been verified. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
-#         return
+    # # User is already verified as a judge
+    # if records.is_verified_judge(interaction.user.id):
+    #     await interaction.followup.send(ephemeral=True,
+    #                                     content=f'Verification failed. You have already been verified. Head over to the {_bot.get_channel(config.discord_start_here_channel_id).mention} channel for instructions on your next steps.')
+    #     return
 
-#     # User is not in the registration records
-#     if not records.judge_response_exists(email.lower(), str(interaction.user.name)):
-#         await interaction.followup.send(ephemeral=True,
-#                                         content=f'Verification failed. No registration record with email address `<{email}>` and Discord username `{interaction.user.name}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
-#         return
+    # # User is not in the registration records
+    # if not records.judge_response_exists(email.lower(), str(interaction.user.name)):
+    #     await interaction.followup.send(ephemeral=True,
+    #                                     content=f'Verification failed. No registration record with email address `<{email}>` and Discord username `{interaction.user.name}` could be found. Please contact an organizer at `<{config.contact_organizer_email}>` or in the {_bot.get_channel(config.discord_ask_an_organizer_channel_id).mention} channel if you believe this is an error.')
+    #     return
 
-#     # Happy case
-#     records.add_judge(interaction.user.id, email.lower())
-#     await interaction.user.add_roles(interaction.guild.get_role(
-#         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
-#     await interaction.followup.send(ephemeral=True,
-#                                     content=f'Verification succeeded. You now have access to the Discord server.')
+    # # Happy case
+    # records.add_judge(interaction.user.id, email.lower())
+    # await interaction.user.add_roles(interaction.guild.get_role(
+    #     config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
+    # await interaction.followup.send(ephemeral=True,
+    #                                 content=f'Verification succeeded. You now have access to the Discord server.')
 
 
 @_bot.slash_command(description="Manually verify a Discord account as a participant for this event (Organizers only)")
@@ -155,7 +154,6 @@ async def overify(
 
     await interaction.followup.send(ephemeral=True,
                                     content=f'`{member} <{email}>` has been manually verified as a participant.')
-
 
 overify.error(_handle_permission_error)
 
@@ -182,7 +180,6 @@ async def omentify(
     await interaction.followup.send(ephemeral=True,
                                     content=f'`{member} <{email}>` has been manually verified as a mentor.')
 
-
 omentify.error(_handle_permission_error)
 
 
@@ -207,7 +204,6 @@ omentify.error(_handle_permission_error)
 
 #     await interaction.followup.send(ephemeral=True,
 #                                     content=f'`{member} <{email}>` has been manually verified as a judge.')
-
 
 # ojudgify.error(_handle_permission_error)
 
@@ -240,26 +236,78 @@ async def createteam(
                                         content=f'Team creation failed. There is already a team with the name `{name}`.')
         return
 
-    # Happy case
+
+    # ------------ Team Channels (Category 1-25, Text) ---------------------
+
+    #Create Category Channel
+    team_id = records.get_max_team_id + 1
+    max_category_num = 25
+    while(max_category_num < team_id):
+        max_category_num += 25
+
+    #EX: Should only execute when team_id is (51) and category max is (50) 
+    if (team_id > max_category_num):
+        #Create Category
+        category_channel = await interaction.guild.create_category(name=f'Teams {max_category_num-24} - {max_category_num}',
+                                                                overwrites={
+                                                                    team_role: nextcord.PermissionOverwrite(view_channel=True),
+                                                                    interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+    else:
+        #Find previous Team category ID (Look back until a valid team is found)
+        search_team_id = team_id - 1
+        while(not records.team_exists(search_team_id)):
+            search_team_id -= 1
+        
+        category_channel = await interaction.guild.get_channel(search_team_id)
+
+    #Create Role
     team_role = await interaction.guild.create_role(name=name)
-    category_channel = await interaction.guild.create_category(name=f'Team ## - {name}',
-                                                               overwrites={
-                                                                   team_role: nextcord.PermissionOverwrite(view_channel=True),
-                                                                   interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
-    text_channel = await category_channel.create_text_channel(name=f'{name.lower().replace(" ", "-")}-text')
-    voice_channel = await category_channel.create_voice_channel(name=f'{name} Voice')
+
+    #Create Text Channel
+    text_channel = await category_channel.create_text_channel(name=f'{team_id}-{name.lower().replace(" ", "-")}')
+
+    #Create Team in DB
     team_id = records.create_team(
         name,
         category_channel.id,
         text_channel.id,
-        voice_channel.id,
         team_role.id)
+    
+    #Add user to Team
     records.add_to_team(interaction.user.id, team_id)
-    await category_channel.edit(name=f'Team {team_id} - {name}')
-    await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
 
+    # await category_channel.edit(name=f'Teams {team_id}')
+    await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after 1 minute.')
+
+    # -----------------------------------------------------------------------
+
+
+
+    # Team Channels (voice, text, category)
+
+    # team_role = await interaction.guild.create_role(name=name)
+    # category_channel = await interaction.guild.create_category(name=f'Team ## - {name}',
+    #                                                            overwrites={
+    #                                                                team_role: nextcord.PermissionOverwrite(view_channel=True),
+    #                                                                interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+    # text_channel = await category_channel.create_text_channel(name=f'{name.lower().replace(" ", "-")}-text')
+    # voice_channel = await category_channel.create_voice_channel(name=f'{name} Voice')
+    # team_id = records.create_team(
+    #     name,
+    #     category_channel.id,
+    #     text_channel.id,
+    #     voice_channel.id,
+    #     team_role.id)
+    # records.add_to_team(interaction.user.id, team_id)
+    # await category_channel.edit(name=f'Team {team_id} - {name}')
+    # await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
+    # await interaction.followup.send(ephemeral=True,
+    #                                 content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after 1 minute.')
+
+
+
 
     # Start team formation timer
     await asyncio.sleep(_TEAM_FORMATION_TIMEOUT)
@@ -306,13 +354,11 @@ async def addmember(
 
     # Happy path
     team_id = records.get_team_id(interaction.user.id)
-    team_role = interaction.guild.get_role(
-        records.get_team_role_id(team_id))
+    team_role = interaction.guild.get_role(records.get_team_role_id(team_id))
     records.add_to_team(member.id, team_id)
     await member.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Team member added successfully. {member.mention} has been added to {team_role.mention}.')
-
 addmember.error(_handle_permission_error)
 
 

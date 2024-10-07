@@ -32,7 +32,7 @@ def _initialize_db(cursor: sqlite3.Cursor):
         f'CREATE TABLE {_JUDGE_TABLE_NAME} ( discord_id INTEGER PRIMARY KEY, email TEXT NOT NULL )')
 
     # Teams
-    cursor.execute(f'CREATE TABLE {_TEAM_TABLE_NAME} ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, category_channel_id INTEGER NOT NULL, text_channel_id INTEGER NOT NULL, voice_channel_id INTEGER NOT NULL, role_id INTEGER NOT NULL )')
+    cursor.execute(f'CREATE TABLE {_TEAM_TABLE_NAME} ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, category_channel_id INTEGER NOT NULL, text_channel_id INTEGER NOT NULL, role_id INTEGER NOT NULL )')
 
 
 def add_participant_response_entry(email: str, discord_username: str):
@@ -223,31 +223,37 @@ def is_verified_judge(discord_id: int) -> bool:
         f'SELECT COUNT(*) FROM {_JUDGE_TABLE_NAME} WHERE discord_id=:discord_id', {
             'discord_id': discord_id}).fetchone()[0] > 0
 
+def get_max_team_id() -> int:
+    """Gets the max team_id in the db
+
+    Returns:
+        int: Max team_id in the table
+    """
+     
+    return _cursor.execute(f'SELECT MAX(id) FROM {_TEAM_TABLE_NAME}')
 
 def create_team(
         name: str,
         category_channel_id: int,
         text_channel_id: int,
-        voice_channel_id: int,
         role_id: int) -> int:
     """Create a record for a new team.
 
     Requires that no team record with the same name, category channel ID, text
-    channele ID, voice channel ID, or role ID exists.
+    channele ID, or role ID exists.
 
     Args:
         name (str): The name of the team
         category_channel_id (int): The ID of the team's category channel
         text_channel_id (int): The ID of the team's text channel
-        voice_channel_id (int): The ID of the team's voice channel
         role_id (int): The ID of the team's role
 
     Returns:
         int: The ID of the team record
     """
 
-    _cursor.execute(f'INSERT INTO {_TEAM_TABLE_NAME} ( name, category_channel_id, text_channel_id, voice_channel_id, role_id ) VALUES ( :name, :category_channel_id, :text_channel_id, :voice_channel_id, :role_id )', {
-                    'name': name, 'category_channel_id': category_channel_id, 'text_channel_id': text_channel_id, 'voice_channel_id': voice_channel_id, 'role_id': role_id})
+    _cursor.execute(f'INSERT INTO {_TEAM_TABLE_NAME} ( name, category_channel_id, text_channel_id, role_id ) VALUES ( :name, :category_channel_id, :text_channel_id, :role_id )', {
+                    'name': name, 'category_channel_id': category_channel_id, 'text_channel_id': text_channel_id, 'role_id': role_id})
     return _cursor.lastrowid
 
 
@@ -424,21 +430,21 @@ def get_team_text_channel_id(team_id: int) -> int:
             'team_id': team_id}).fetchone()[0]
 
 
-def get_team_voice_channel_id(team_id: int) -> int:
-    """Get the voice channel ID for a team.
+# def get_team_voice_channel_id(team_id: int) -> int:
+#     """Get the voice channel ID for a team.
 
-    Requires that team_id is the ID of a team record.
+#     Requires that team_id is the ID of a team record.
 
-    Args:
-        team_id (int): ID of the team record
+#     Args:
+#         team_id (int): ID of the team record
 
-    Returns:
-        int: ID of the team voice channel
-    """
+#     Returns:
+#         int: ID of the team voice channel
+#     """
 
-    return _cursor.execute(
-        f'SELECT voice_channel_id FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
-            'team_id': team_id}).fetchone()[0]
+#     return _cursor.execute(
+#         f'SELECT voice_channel_id FROM {_TEAM_TABLE_NAME} WHERE id=:team_id', {
+#             'team_id': team_id}).fetchone()[0]
 
 
 def team_exists(team_id: int) -> bool:
