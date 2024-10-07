@@ -265,8 +265,8 @@ async def createteam(
 
     team_id = records.create_team(
         name,
-        text_channel.id,
         category_channel.id,
+        text_channel.id,
         team_role.id)
     
     records.add_to_team(interaction.user.id, team_id)
