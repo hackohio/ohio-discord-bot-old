@@ -240,7 +240,7 @@ async def createteam(
     # ------------ Team Channels (Category 1-25, Text) ---------------------
 
     #Create Category Channel
-    team_id = records.get_max_team_id + 1
+    team_id = records.get_max_team_id() + 1
     max_category_num = 25
     while(max_category_num < team_id):
         max_category_num += 25
