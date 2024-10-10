@@ -249,7 +249,9 @@ async def createteam(
         category_channel = await interaction.guild.create_category_channel(name=f'Teams {max_category_num-49}-{max_category_num}',
                                                                         overwrites={
                                                                             team_role: nextcord.PermissionOverwrite(view_channel=True),
-                                                                            interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+                                                                            interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)
+                                                                            
+                                                                            })
     else:
         #Find valid team below team id
         search_team_id = team_id - 1
@@ -261,7 +263,8 @@ async def createteam(
     text_channel = await category_channel.create_text_channel(name=f'##-{name.lower().replace(" ", "-")}-text',
                                                                 overwrites={
                                                                 team_role: nextcord.PermissionOverwrite(view_channel=True),
-                                                                interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True)})
+                                                                interaction.guild.get_role(config.discord_all_access_pass_role_id): nextcord.PermissionOverwrite(view_channel=True),
+                                                                interaction.guild.default_role:  nextcord.PermissionOverwrite(view_channel=False)})
 
     team_id = records.create_team(
         name,
@@ -274,9 +277,6 @@ async def createteam(
     await interaction.user.add_roles(team_role, interaction.guild.get_role(config.discord_team_assigned_role_id))
     await interaction.followup.send(ephemeral=True,
                                     content=f'Team creation succeeded. {team_role.mention} created. Make sure to add members to your team using the `/addmember` command. Teams with fewer than 2 members will be deleted after 1 minute.')
-
-
-
 
     # Start team formation timer
     await asyncio.sleep(_TEAM_FORMATION_TIMEOUT)
