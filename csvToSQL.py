@@ -52,17 +52,17 @@ with open(FILENAME, 'r') as csv_file:
     #Add userArr Data to DB
     for i in range(len(userArr)):
         if ("participants" in FILENAME):
-            if not (records.participant_response_exists(userArr[i]['email'], userArr[i]['discord_username'])):
+            if not (records.participant_response_exists(userArr[i]['email'].lower(), userArr[i]['discord_username'].lower())):
                 try:
-                    records.add_participant_response_entry(userArr[i]['email'], userArr[i]['discord_username'])
+                    records.add_participant_response_entry(userArr[i]['email'].lower(), userArr[i]['discord_username'].lower())
                     print(f'User {i}: Added')
                 except:
                     print("Error adding data to DB")
                     break
         elif ("leaders" in FILENAME):
-            if not (records.mentor_response_exists(userArr[i]['email'], userArr[i]['discord_username'])):
+            if not (records.mentor_response_exists(userArr[i]['email'].lower(), userArr[i]['discord_username'].lower())):
                 try:
-                    records.add_mentor_response_entry(userArr[i]['email'], userArr[i]['discord_username'])
+                    records.add_mentor_response_entry(userArr[i]['email'].lower(), userArr[i]['discord_username'].lower())
                     print(f'Leader {i}: Added')
                 except:
                     print("Error adding data to DB")
