@@ -87,10 +87,10 @@ def participant_response_exists(email: str, discord_username: str) -> bool:
     """
 
     return _cursor.execute(
-        f'SELECT COUNT(*) FROM {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_username=:discord_username',
+        f'SELECT COUNT(*) FROM {_PARTICIPANT_REG_RESPONSES_TABLE_NAME} WHERE LOWER(email)=:email AND LOWER(discord_username)=:discord_username',
         {
-            'email': email,
-            'discord_username': discord_username}).fetchone()[0] > 0
+            'email': email.lower(),
+            'discord_username': discord_username.lower()}).fetchone()[0] > 0
 
 
 def mentor_response_exists(email: str, discord_username: str) -> bool:
@@ -106,10 +106,10 @@ def mentor_response_exists(email: str, discord_username: str) -> bool:
     """
 
     return _cursor.execute(
-        f'SELECT COUNT(*) FROM {_MENTOR_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_username=:discord_username',
+        f'SELECT COUNT(*) FROM {_MENTOR_REG_RESPONSES_TABLE_NAME} WHERE LOWER(email)=:email AND LOWER(discord_username)=:discord_username',
         {
-            'email': email,
-            'discord_username': discord_username}).fetchone()[0] > 0
+            'email': email.lower(),
+            'discord_username': discord_username.lower()}).fetchone()[0] > 0
 
 
 def judge_response_exists(email: str, discord_username: str) -> bool:
@@ -125,10 +125,10 @@ def judge_response_exists(email: str, discord_username: str) -> bool:
     """
 
     return _cursor.execute(
-        f'SELECT COUNT(*) FROM {_JUDGE_REG_RESPONSES_TABLE_NAME} WHERE email=:email AND discord_username=:discord_username',
+        f'SELECT COUNT(*) FROM {_JUDGE_REG_RESPONSES_TABLE_NAME} WHERE LOWER(email)=:email AND LOWER(discord_username)=:discord_username',
         {
-            'email': email,
-            'discord_username': discord_username}).fetchone()[0] > 0
+            'email': email.lower(),
+            'discord_username': discord_username.lower()}).fetchone()[0] > 0
 
 
 def add_participant(discord_id: int, email: str):

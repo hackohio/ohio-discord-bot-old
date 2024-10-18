@@ -146,6 +146,12 @@ async def overify(
             description="The email address of the participant",
             required=True
         )):
+    
+    #User is already verified as a participant
+    if records.is_verified_participant(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. {member} has already been verified.')
+        return
 
     await interaction.response.defer(ephemeral=True)
 
@@ -170,6 +176,12 @@ async def omentify(
             description="The email address of the mentor",
             required=True
         )):
+
+    #User is already verified as a mentor
+    if records.is_verified_mentor(interaction.user.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. {member} has already been verified.')
+        return
 
     await interaction.response.defer(ephemeral=True)
 
