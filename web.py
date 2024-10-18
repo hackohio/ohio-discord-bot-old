@@ -15,7 +15,7 @@ def push_participant():
             records.add_participant_response_entry(
                 str(data['email']).lower(), data['discord_username'])
             return jsonify(
-                {'email': str(data['email']).lower(), 'discord_username': data['discord_username'].lower()})
+                {'email': str(data['email']).lower(), 'discord_username': data['discord_username']})
         except BaseException:
             abort(400)
 
@@ -31,7 +31,7 @@ def push_mentor():
             records.add_mentor_response_entry(
                 str(data['email']).lower(), data['discord_username'])
             return jsonify(
-                {'email': str(data['email']).lower(), 'discord_username': data['discord_username'].lower()})
+                {'email': str(data['email']).lower(), 'discord_username': data['discord_username']})
         except BaseException:
             abort(400)
 
