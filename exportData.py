@@ -36,7 +36,7 @@ with open(EXPORT_FILENAME, 'w') as csv_file:
     #Export Header Items
     headers = ['Team ID', 'Team name', 'Member1', 'Member2', 'Member3', 'Member4']
     writer = csv.writer(csv_file, fieldnames=headers)
-    writer.writeheader()
+    writer.writerow(headers)
 
     #Add Rows of Data
     for team in team_data_list:
