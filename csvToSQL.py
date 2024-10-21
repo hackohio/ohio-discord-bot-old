@@ -46,7 +46,7 @@ with open(FILENAME, 'r') as csv_file:
             if(attr == ATTR_EMAIL and user[attr] != ""):
                 userData['email'] = user[attr]
 
-        if(userData):
+        if('email' in userData and 'discord_username' in userData):
             userArr.append(userData)
         
     #Add userArr Data to DB

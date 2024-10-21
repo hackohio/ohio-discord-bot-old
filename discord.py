@@ -148,7 +148,7 @@ async def overify(
         )):
     
     #User is already verified as a participant
-    if records.is_verified_participant(interaction.user.id):
+    if records.is_verified_participant(member.id):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. {member} has already been verified.')
         return
@@ -178,7 +178,7 @@ async def omentify(
         )):
 
     #User is already verified as a mentor
-    if records.is_verified_mentor(interaction.user.id):
+    if records.is_verified_mentor(member.id):
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. {member} has already been verified.')
         return
@@ -195,6 +195,7 @@ async def omentify(
 omentify.error(_handle_permission_error)
 
 
+<<<<<<< Updated upstream
 # @_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
 # @application_checks.has_role(config.discord_organizer_role_id)
 # async def ojudgify(
@@ -207,6 +208,26 @@ omentify.error(_handle_permission_error)
 #             description="The email address of the judge",
 #             required=True
 #         )):
+=======
+@_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
+@application_checks.has_role(config.discord_organizer_role_id)
+async def ojudgify(
+        interaction: nextcord.Interaction,
+        member: nextcord.Member = nextcord.SlashOption(
+            description="The user to verify as a judge",
+            required=True
+        ),
+        email: str = nextcord.SlashOption(
+            description="The email address of the judge",
+            required=True
+        )):
+    
+    #User is already verified as a judge
+    if records.is_verified_judge(member.id):
+        await interaction.followup.send(ephemeral=True,
+                                        content=f'Verification failed. <{member}> has already been verified.')
+        return
+>>>>>>> Stashed changes
 
 #     await interaction.response.defer(ephemeral=True)
 
