@@ -15,7 +15,7 @@ for team_id in range(HIGHEST_TEAM_ID):
         #Store id and name
         team_data.append(team_id)
         team_data.append(records.get_team_id) 
-        
+
         #Look for members
         team_members = records.get_team_members(team_id)
         for member in team_members:
@@ -35,7 +35,7 @@ with open(EXPORT_FILENAME, 'w') as csv_file:
 
     #Export Header Items
     headers = ['Team ID', 'Team name', 'Member1', 'Member2', 'Member3', 'Member4']
-    writer = csv.DictWriter(csv_file, fieldnames=headers)
+    writer = csv.writer(csv_file, fieldnames=headers)
     writer.writeheader()
 
     #Add Rows of Data
