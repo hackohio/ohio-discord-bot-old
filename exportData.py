@@ -13,9 +13,9 @@ for team_id in range(HIGHEST_TEAM_ID):
     #If the team exists
     if (records.team_exists(team_id)):
         #Store id and name
-        team_data[0] = team_id
-        team_data[1] = records.get_team_id
-
+        team_data.append(team_id)
+        team_data.append(records.get_team_id) 
+        
         #Look for members
         team_members = records.get_team_members(team_id)
         for member in team_members:

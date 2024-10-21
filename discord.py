@@ -195,20 +195,6 @@ async def omentify(
 omentify.error(_handle_permission_error)
 
 
-<<<<<<< Updated upstream
-# @_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
-# @application_checks.has_role(config.discord_organizer_role_id)
-# async def ojudgify(
-#         interaction: nextcord.Interaction,
-#         member: nextcord.Member = nextcord.SlashOption(
-#             description="The user to verify as a judge",
-#             required=True
-#         ),
-#         email: str = nextcord.SlashOption(
-#             description="The email address of the judge",
-#             required=True
-#         )):
-=======
 @_bot.slash_command(description="Manually verify a Discord account as a judge for this event (Organizers only)")
 @application_checks.has_role(config.discord_organizer_role_id)
 async def ojudgify(
@@ -227,18 +213,17 @@ async def ojudgify(
         await interaction.followup.send(ephemeral=True,
                                         content=f'Verification failed. <{member}> has already been verified.')
         return
->>>>>>> Stashed changes
 
-#     await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer(ephemeral=True)
 
-#     records.add_judge(member.id, email.lower())
-#     await member.add_roles(interaction.guild.get_role(
-#         config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
+    records.add_judge(member.id, email.lower())
+    await member.add_roles(interaction.guild.get_role(
+        config.discord_judge_role_id), interaction.guild.get_role(config.discord_all_access_pass_role_id), interaction.guild.get_role(config.discord_verified_role_id))
 
-#     await interaction.followup.send(ephemeral=True,
-#                                     content=f'`{member} <{email}>` has been manually verified as a judge.')
+    await interaction.followup.send(ephemeral=True,
+                                    content=f'`{member} <{email}>` has been manually verified as a judge.')
 
-# ojudgify.error(_handle_permission_error)
+ojudgify.error(_handle_permission_error)
 
 
 @_bot.slash_command(description="Create a new team for this event")
